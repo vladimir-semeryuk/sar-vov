@@ -4,18 +4,31 @@ using UnityEngine.InputSystem;
 public class PlayerController : MonoBehaviour
 {
     private Rigidbody2D rbPlayer;
-    [SerializeField] private float speed = 10f;
-    [SerializeField] float acceleration = 6f;
-    [SerializeField] float decceleration = 7f;
-    [SerializeField] bool isNewControlScheme = true;
-    [SerializeField] float velPower = 0.9f;
-    [SerializeField] float accelRate; // for debug
-    [SerializeField] float frictionAmount = 0.2f;
+    [SerializeField] 
+    private float speed = 10f;
+    [SerializeField] 
+    private float acceleration = 6f;
+    [SerializeField] 
+    private float decceleration = 7f;
+    [SerializeField] 
+    private bool isNewControlScheme = true;
+    [SerializeField] 
+    private float velPower = 0.9f;
+    [SerializeField] 
+    private float accelRate; // for debug
+    [SerializeField] 
+    private float frictionAmount = 0.2f;
     private float direction = 0;
     private float fallSpeedRate;
     private CapsuleCollider2D playerCapsule;
     private PlayerInput playerInput;
     private PlayerInputBtns playerInputActions;
+
+    private bool isOnGround;
+
+    [SerializeField]
+    private float jumpForce = 10f;
+
     private void Awake()
     {
         rbPlayer = GetComponent<Rigidbody2D>();
@@ -29,12 +42,17 @@ public class PlayerController : MonoBehaviour
             direction = move.ReadValue<float>();
         };
     }
+    private void Start()
+    {
+        isOnGround = true;
+    }
     public void JumpAction(InputAction.CallbackContext context)
     {
-        if (context.performed)
+        if (context.performed && isOnGround)
         {
             Debug.Log("Jump");
-            rbPlayer.AddForce(Vector2.up * 5f, ForceMode2D.Impulse);
+            rbPlayer.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
+            isOnGround = false;
         }
     }
 
@@ -87,6 +105,15 @@ public class PlayerController : MonoBehaviour
     {
         Run();
         // Fall();
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag("Ground"))
+        {
+            isOnGround = true;
+            Debug.Log(isOnGround);
+        }
     }
 
 }
